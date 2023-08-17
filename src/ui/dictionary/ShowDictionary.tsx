@@ -1,5 +1,5 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import {AiFillPlayCircle} from 'react-icons/ai'
 interface Definition {
   definition: string;
   synonyms: string[];
@@ -9,8 +9,6 @@ interface Definition {
 interface Meaning {
   partOfSpeech: string;
   definitions: Definition[];
-  synonyms: string[];
-  antonyms: string[];
 }
 
 interface Phonetic {
@@ -39,36 +37,62 @@ interface ShowDictionaryProps {
 }
 
 const ShowDictionary: React.FC<ShowDictionaryProps> = ({ data }: any) => {
+  const [selectedTab, setSelectedTab] = useState<string>('verb');
+  const [audioPlaying, setAudioPlaying] = useState<boolean>(false);
+
   if (!data) {
-    return;
+    return null;
   }
   const data1 = data[0];
 
+  const renderMeanings = data1?.meanings?.filter((meaning: any) => meaning.partOfSpeech === selectedTab);
+
+  const maxDefinitionsToShow = 2; // Change this value to adjust the number of definitions to show
+  const audioRef = React.createRef<HTMLAudioElement>();
+
+  const handleAudioIconClick = () => {
+    if (audioRef.current) {
+      if (!audioPlaying) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
+      setAudioPlaying(!audioPlaying);
+    }
+  };
   return (
-    <div className="mt-4 dictionary__page">
-      <h2 className="font-semibold mb-2"> {
-        data1?.word ? <span>{data1?.word}</span> : <span>No word found</span>
-      } </h2>
-      {data1?.meanings && data1.meanings.length > 0 ? (
-        data1.meanings.map((meaning: Meaning, index: number) => (
-          <div key={index} className="mb-4">
-            <h3 className="text-lg font-semibold mb-1">Part of Speech: {meaning.partOfSpeech}</h3>
-            <ul className="list-disc list-inside">
-              {meaning.definitions.map((definition, idx) => (
+    <div className='mt-4 dictionary__page shadow-lg'>
+    <div className='mb-2 flex items-center'>
+        {data1?.phonetics[0]?.audio && (
+          <div className='mr-2 py-4 flex cursor-pointer' onClick={handleAudioIconClick}>
+            <AiFillPlayCircle size={40}  />
+            <span className='ml-5 mt-2'>{`${data1?.phonetics[0]?.text}`}</span>
+          </div>
+        )}
+        <div style={{ display: 'none' }}>
+          {data1?.phonetics[0]?.audio && (
+            <audio ref={audioRef}>
+              <source src={data1?.phonetics[0]?.audio} type='audio/mpeg' />
+              Your browser does not support the audio element.
+            </audio>
+          )}
+        </div>
+      </div>
+      <div className='mb-4'>
+        <button className={`mr-4 verb ${selectedTab === 'verb' ? 'btn' : ''}`} onClick={() => setSelectedTab('verb')}>
+          Verb
+        </button>
+        <button className={`mr-4 noun ${selectedTab === 'noun' ? 'btn' : ''}`} onClick={() => setSelectedTab('noun')}>
+          Noun
+        </button>
+      </div>
+      {renderMeanings && renderMeanings.length > 0 ? (
+        renderMeanings.map((meaning: Meaning, index: number) => (
+          <div key={index} className='mb-4'>
+            <ul className='list-disc list-inside'>
+              {meaning.definitions.slice(0, maxDefinitionsToShow).map((definition, idx) => (
                 <li key={idx}>
-                  <p className="mb-1">
-                    <span className="font-semibold">Definition:</span> {definition.definition}
-                  </p>
-                  {definition.synonyms.length > 0 && (
-                    <p className="mb-1">
-                      <span className="font-semibold">Synonyms:</span> {definition.synonyms.join(', ')}
-                    </p>
-                  )}
-                  {definition.antonyms.length > 0 && (
-                    <p className="mb-1">
-                      <span className="font-semibold">Antonyms:</span> {definition.antonyms.join(', ')}
-                    </p>
-                  )}
+                  <p className='mb-1'>{definition.definition}</p>
                 </li>
               ))}
             </ul>
@@ -77,38 +101,6 @@ const ShowDictionary: React.FC<ShowDictionaryProps> = ({ data }: any) => {
       ) : (
         <p>No meanings available.</p>
       )}
-
-      <div>
-        <h3>Phonetics</h3>
-        <ul>
-          {data1?.phonetics?.map((phonetic: Phonetic, index: number) => (
-            <li key={index}>
-              <p>Text: {phonetic.text}</p>
-              {phonetic.audio && (
-                <audio controls>
-                  <source src={phonetic.audio} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              )}
-              <p>
-                Source: <a href={phonetic.sourceUrl}>{phonetic.sourceUrl}</a>
-                <br />
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <p>
-          Source URLs:{' '}
-          {data1?.sourceUrls?.map((url: string, index: number) => (
-            <a key={index} href={url}>
-              {url}
-            </a>
-          ))}
-        </p>
-      </div>
     </div>
   );
 };
