@@ -39,6 +39,12 @@
     background-color: #fff;
 } */
 
+
+.footer__page img{
+    text-align: center;
+    width: 50%;
+}
+
 .dictionary__page .btn{
     color: #fff;
     background-color: #000;

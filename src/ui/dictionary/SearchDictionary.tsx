@@ -29,7 +29,7 @@ const DictionaryApp: React.FC = () => {
 
   return (
     <div className='search__page'>
-      <div className='flex mb-4'>
+      <div className='flex my-2'>
         <span className='search__icon'>
           <AiOutlineSearch />
         </span>
