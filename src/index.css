@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input-button-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .input-button-container input {
+    border-radius: 0.25rem 0 0 0.25rem;
+  }
+  
+  .input-button-container button {
+    border-radius: 0 0.25rem 0.25rem 0;
+  }
+
+  .dictionary__page{
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
